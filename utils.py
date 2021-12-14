@@ -3,6 +3,14 @@ import os
 import requests
 
 from dotenv import load_dotenv
+from datetime import datetime
+
+class RequestResult:
+	def __init__(self, request_data, response_text, endpoint):
+		self.request_data = request_data
+		self.response_text = response_text
+		self.endpoint = endpoint
+		self.created = datetime.now()
 
 def get_data_path():
 	load_dotenv()
@@ -25,7 +33,7 @@ def send_request(endpoint, data):
 
 	response = requests.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers)
 
-	return response.text
+	return RequestResult(data, response.text, endpoint)
 
 def process_task_group(id):
 	data_path = get_data_path()
@@ -40,4 +48,21 @@ def process_task_group(id):
 
 			response = send_request(task['endpoint'], task['parameters'])
 
-			print(response)
+			create_output_file(response)
+
+def create_output_file(request_result):
+	data_path = get_data_path()
+
+	response_json = {
+		"created": str(request_result.created),
+		"unprocessed_post_parameters": request_result.request_data,
+		"endpoint": request_result.endpoint,
+		"raw_output": request_result.response_text
+	}
+
+	filename = f"{str(request_result.created)}.json"
+
+	with open(f"{data_path}/Output/{filename}", "w") as output_file:
+		json.dump(response_json, output_file)
+
+	print(response_json)
