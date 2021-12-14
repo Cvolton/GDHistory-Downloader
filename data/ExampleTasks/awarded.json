@@ -1,0 +1,8 @@
+{
+	"endpoint": "getGJLevels21",
+	"startingPage": 1,
+	"endingPage": 10,
+	"parameters": {
+		"type": 11
+	}
+}
