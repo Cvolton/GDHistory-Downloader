@@ -48,7 +48,11 @@ def process_task_group(id):
 
 			if 'startingPage' in task and 'endingPage' in task:
 				for i in range(task['startingPage'], task['endingPage']):
+					print(f"Page {i}")
 					response = save_request(task['endpoint'], task['parameters'] | {"page": i} )
+					if response is False:
+						print("done")
+						return
 			else:
 				response = save_request(task['endpoint'], task['parameters'])
 
@@ -67,8 +71,9 @@ def create_output_file(request_result):
 	with open(f"{data_path}/Output/{filename}", "w") as output_file:
 		json.dump(response_json, output_file)
 
-	print(response_json)
+	#print(response_json)
 
 def save_request(endpoint, data):
 	response = send_request(endpoint, data)
 	create_output_file(response)
+	return response.response_text[:2] != '-1'
