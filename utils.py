@@ -41,6 +41,7 @@ def process_task_group(id):
 	directory = f"{data_path}/TaskGroups/{id}"
 
 	for filename in os.listdir(directory):
+		print("Processing task {filename}")
 		with open(f"{directory}/{filename}", "r") as json_file:
 			task = json.load(json_file)
 
