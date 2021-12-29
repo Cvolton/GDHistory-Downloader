@@ -52,7 +52,7 @@ def process_task_group(id):
 					response = save_request(task['endpoint'], task['parameters'] | {"page": i} )
 					if response is False:
 						print("done")
-						return
+						break
 			else:
 				response = save_request(task['endpoint'], task['parameters'])
 
