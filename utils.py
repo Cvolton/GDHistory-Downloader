@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import time
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -16,6 +17,11 @@ def get_data_path():
 	load_dotenv()
 
 	return os.getenv('DATA_PATH', 'data')
+
+def get_request_delay():
+	load_dotenv()
+
+	return int(os.getenv('REQUEST_DELAY', 5))
 
 def send_request(endpoint, data):
 	data_path = get_data_path()
@@ -37,6 +43,7 @@ def send_request(endpoint, data):
 
 def process_task_group(id):
 	data_path = get_data_path()
+	request_delay = get_request_delay()
 
 	directory = f"{data_path}/TaskGroups/{id}"
 
@@ -54,6 +61,7 @@ def process_task_group(id):
 					if response is False:
 						print("done")
 						break
+					time.sleep(request_delay)
 			else:
 				response = save_request(task['endpoint'], task['parameters'])
 
