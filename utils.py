@@ -23,8 +23,32 @@ def get_request_delay():
 
 	return int(os.getenv('REQUEST_DELAY', 5))
 
+def get_source_interface():
+	load_dotenv()
+
+	return os.getenv('SOURCE_INTERFACE', False)
+
+#adapted from https://stackoverflow.com/questions/48996494/send-http-request-through-specific-network-interface
+def session_for_src_addr(addr: str) -> requests.Session:
+	"""
+	Create `Session` which will bind to the specified local address
+	rather than auto-selecting it.
+	"""
+	session = requests.Session()
+	for prefix in ('http://', 'https://'):
+		session.get_adapter(prefix).init_poolmanager(
+			# those are default values from HTTPAdapter's constructor
+			connections=requests.adapters.DEFAULT_POOLSIZE,
+			maxsize=requests.adapters.DEFAULT_POOLSIZE,
+			# This should be a tuple of (address, port). Port 0 means auto-selection.
+			source_address=(addr, 0),
+		)
+
+	return session
+
 def send_request(endpoint, data):
 	data_path = get_data_path()
+	session = session_for_src_addr(get_source_interface())
 
 	mandatory_data = {
 		"gameVersion": "21",
@@ -37,7 +61,7 @@ def send_request(endpoint, data):
 
 	headers = {'User-Agent': ''}
 
-	response = requests.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers)
+	response = session.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers)
 
 	return RequestResult(data, response.text, endpoint)
 
