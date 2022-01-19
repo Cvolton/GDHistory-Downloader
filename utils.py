@@ -87,9 +87,14 @@ def process_task_group(id):
 						break
 					time.sleep(request_delay)
 			elif 'levelList' in task:
+				count = len(task['levelList'])
+				i = 1
 				for levelID in task['levelList']:
-					print(f"levelID {levelID}")
+					print(f"{i} / {count} - levelID {levelID}")
 					response = save_request(task['endpoint'], task['parameters'] | {"levelID": levelID} )
+					i += 1
+					time.sleep(request_delay)
+
 			else:
 				response = save_request(task['endpoint'], task['parameters'])
 
