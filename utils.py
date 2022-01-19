@@ -86,6 +86,10 @@ def process_task_group(id):
 						print("done")
 						break
 					time.sleep(request_delay)
+			elif 'levelList' in task:
+				for levelID in task['levelList']:
+					print(f"levelID {levelID}")
+					response = save_request(task['endpoint'], task['parameters'] | {"levelID": levelID} )
 			else:
 				response = save_request(task['endpoint'], task['parameters'])
 
