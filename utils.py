@@ -46,9 +46,10 @@ def session_for_src_addr(addr: str) -> requests.Session:
 
 	return session
 
-def send_request(endpoint, data):
+def send_request(endpoint, data, *args, **kwargs):
 	data_path = get_data_path()
 	session = session_for_src_addr(get_source_interface())
+	attempt = kwargs.get('attempt', 1)
 
 	mandatory_data = {
 		"gameVersion": "21",
@@ -62,6 +63,11 @@ def send_request(endpoint, data):
 	headers = {'User-Agent': ''}
 
 	response = session.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers)
+
+	if response == '' and attempt < 10:
+		print("Being rate-limited, sleeping...")
+		time.sleep(60*attempt)
+		return send_request(endpoint, data, attempt=attempt+1)
 
 	return RequestResult(data, response.text, endpoint)
 
