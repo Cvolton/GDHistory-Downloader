@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import time
+import pytz
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -11,7 +12,7 @@ class RequestResult:
 		self.request_data = request_data
 		self.response_text = response_text
 		self.endpoint = endpoint
-		self.created = datetime.now()
+		self.created = datetime.now(pytz.utc)
 
 def get_data_path():
 	load_dotenv()
