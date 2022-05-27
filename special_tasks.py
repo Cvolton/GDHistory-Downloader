@@ -1,7 +1,10 @@
 import utils
 import server_parsers
 
+import time
+
 def get_id_range_task(start, finish):
+	request_delay = utils.get_request_delay()
 	print(f"[{start}/{finish}]")
 	ids = []
 	end = finish if finish < (start+100) else start+100
@@ -18,4 +21,5 @@ def get_id_range_task(start, finish):
 		new_start = int(last_level[1]) + 1
 	else:
 		new_start = end
+	time.sleep(request_delay)
 	get_id_range_task(new_start, finish)
