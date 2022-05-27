@@ -126,4 +126,4 @@ def create_output_file(request_result):
 def save_request(endpoint, data):
 	response = send_request(endpoint, data)
 	create_output_file(response)
-	return response.response_text[:2] != '-1'
+	return False if response.response_text[:2] == '-1' else response.response_text
