@@ -108,8 +108,14 @@ def find_cutoffs_for_today():
 
 	print(dates)
 
+	json_set = {
+		'endpoint': "GDHistory-Special",
+		'task': "find_cutoffs",
+		'dates': dates
+	}
+
 	data_path = utils.get_data_path()
 	filename = f"ids_{datetime.now()}.json"
 
 	with open(f"{data_path}/Output/{filename}", "w") as output_file:
-		json.dump(dates, output_file)
+		json.dump(json_set, output_file)
