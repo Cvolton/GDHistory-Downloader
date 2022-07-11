@@ -4,6 +4,7 @@ import server_parsers
 import time
 import math
 import pytz
+import json
 from datetime import datetime
 
 def get_id_range_task(start, finish):
@@ -101,8 +102,14 @@ def find_cutoffs_for_today():
 
 		dates[highest_point] = {
 			"timestamp": f"{i+1} years ago",
-			"estimation_created": datetime.now(pytz.utc)
+			"estimation_created": str(datetime.now(pytz.utc))
 		}
 		
 
 	print(dates)
+
+	data_path = utils.get_data_path()
+	filename = f"ids_{datetime.now()}.json"
+
+	with open(f"{data_path}/Output/{filename}", "w") as output_file:
+		json.dump(dates, output_file)
