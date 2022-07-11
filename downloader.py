@@ -7,6 +7,9 @@ if "--special" in sys.argv:
 	if "id_range" in sys.argv:
 		sys.argv.remove("id_range")
 		special_tasks.get_id_range_task(int(sys.argv[1]), int(sys.argv[2]))
+	if "find_cutoffs" in sys.argv:
+		sys.argv.remove("find_cutoffs")
+		special_tasks.find_cutoffs_for_today()
 
 else:
 	for arg in sys.argv[1:]:
