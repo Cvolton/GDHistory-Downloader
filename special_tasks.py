@@ -46,7 +46,12 @@ def find_cutoffs_for_today():
 	full_level = server_parsers.response_to_dict(response_text.split('#')[0].split('|')[0], ':')
 	date = full_level[28]
 
-	dates = {}
+	dates = {
+		recent_id: {
+			"timestamp": f"0 years ago",
+			"estimation_created": str(datetime.now(pytz.utc))
+		}
+	}
 
 	#Step 2: find the level
 	for i in range(0, years):
