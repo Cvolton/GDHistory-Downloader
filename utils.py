@@ -36,14 +36,19 @@ def session_for_src_addr(addr: str) -> requests.Session:
 	rather than auto-selecting it.
 	"""
 	session = requests.Session()
-	for prefix in ('http://', 'https://'):
+	"""for prefix in ('http://', 'https://'):
 		session.get_adapter(prefix).init_poolmanager(
 			# those are default values from HTTPAdapter's constructor
 			connections=requests.adapters.DEFAULT_POOLSIZE,
 			maxsize=requests.adapters.DEFAULT_POOLSIZE,
 			# This should be a tuple of (address, port). Port 0 means auto-selection.
 			source_address=(addr, 0),
-		)
+		)"""
+
+	session.proxies = {
+	   'http': os.getenv('PROXY', None),
+	   'https': os.getenv('PROXY', None),
+	}
 
 	return session
 
