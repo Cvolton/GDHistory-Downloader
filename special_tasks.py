@@ -1,6 +1,7 @@
 import utils
 import server_parsers
 
+import base64
 import time
 import math
 import pytz
@@ -124,3 +125,22 @@ def find_cutoffs_for_today():
 
 	with open(f"{data_path}/Output/{filename}", "w") as output_file:
 		json.dump(json_set, output_file)
+
+def generate_rated_sheet():
+	page = 0
+	print("levelID,levelName,description,version,userID,rating,ratingSum,difficulty name,downloads,audioTrack,gameVersion,likes,length,demon,stars,featureScore,auto,original,twoPlayer,customSong,coins,verifiedCoins,starsRequested,epic,demonDifficulty,objects")
+	while True:
+		response_text = utils.save_request('getGJLevels21', {"type": 4, "star": 1, "page": page} )
+
+		if response_text is None:
+			break
+
+		if not response_text.startswith('1:'):
+			continue
+
+		levels = response_text.split('#')[0].split('|')
+		for level in levels:
+			data = server_parsers.response_to_dict(level, ":")
+			print(f"{data[1]},{data[2]},\"{data[3]}\",{data[5]},{data[6]},{data[8]},{data[9]},{data[10]},{data[12]},{data[13]},{data[14]},{data[15]},{data[17]},{data[18]},{data[19]},{data[25]},{data[30]},{data[31]},{data[35]},{data[37]},{data[38]},{data[39]},{data[42]},{data[43]},{data[45]}")
+
+		page = page + 1

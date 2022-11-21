@@ -10,6 +10,9 @@ if "--special" in sys.argv:
 	if "find_cutoffs" in sys.argv:
 		sys.argv.remove("find_cutoffs")
 		special_tasks.find_cutoffs_for_today()
+	if "rated_sheet" in sys.argv:
+		sys.argv.remove("rated_sheet")
+		special_tasks.generate_rated_sheet()
 
 else:
 	for arg in sys.argv[1:]:
