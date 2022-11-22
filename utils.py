@@ -70,8 +70,8 @@ def send_request(endpoint, data, *args, **kwargs):
 
 	response = session.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers)
 
-	if response.text == '' and attempt < 4:
-		print("Being rate-limited, sleeping...")
+	if (response.text == '' or response.status_code >= 500) and attempt < 4:
+		print(f"Being rate-limited, sleeping... {response.status_code}")
 		time.sleep(60*attempt)
 		return send_request(endpoint, data, attempt=attempt+1)
 
