@@ -106,7 +106,7 @@ def find_cutoffs_for_today():
 
 			print(f"Searching: {i}\nLowest point: {lowest_point} ({lowest_point_str})\nHighest point: {highest_point} ({highest_point_str})")
 
-		dates[highest_point] = {
+		dates[lowest_point] = {
 			"timestamp": f"{i+1} years ago",
 			"estimation_created": str(datetime.now(pytz.utc))
 		}
