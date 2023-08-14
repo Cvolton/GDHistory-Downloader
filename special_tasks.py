@@ -144,3 +144,53 @@ def generate_rated_sheet():
 			print(f"{data[1]},{data[2]},\"{data[3]}\",{data[5]},{data[6]},{data[8]},{data[9]},{data[10]},{data[12]},{data[13]},{data[14]},{data[15]},{data[17]},{data[18]},{data[19]},{data[25]},{data[30]},{data[31]},{data[35]},{data[37]},{data[38]},{data[39]},{data[42]},{data[43]},{data[45]}")
 
 		page = page + 1
+
+
+def do_mod_sheet_pass(params, dont_switch=False):
+	page = 0
+	sheet_text = "levelID,levelName,description,version,userID,rating,ratingSum,downloads,audioTrack,gameVersion,likes,length,demon,stars,featureScore,auto,original,twoPlayer,customSong,coins,verifiedCoins,starsRequested,epic,demonDifficulty,objects"
+	while True:
+		page_object = {"page": page}
+		final_params = params | page_object
+
+		response_text = utils.save_request('getGJLevels21', final_params)
+
+		if not response_text:
+			break
+
+		if not response_text.startswith('1:'):
+			continue
+
+		levels = response_text.split('#')[0].split('|')
+		for level in levels:
+			data = server_parsers.response_to_dict(level, ":")
+			sheet_text = (f"{sheet_text}\n{data[1]},{data[2]},\"{data[3]}\",{data[5]},{data[6]},{data[8]},{data[9]},{data[10]},{data[12]},{data[13]},{data[14]},{data[15]},{data[17]},{data[18]},{data[19]},{data[25]},{data[30]},{data[31]},{data[35]},{data[37]},{data[38]},{data[39]},{data[42]},{data[43]},{data[45]}")
+
+		print(f"Loaded {final_params}")
+
+		page = page + 1
+
+		if dont_switch:
+			break
+
+	return sheet_text
+
+def save_sheet(filename, sheet_pass):
+	data_path = utils.get_data_path()
+	with open(f"{data_path}/{filename}", "w") as output_file:
+		output_file.write(sheet_pass)
+
+def save_pass(filename, params, dont_switch=False):
+	save_sheet(filename, do_mod_sheet_pass(params, dont_switch))
+
+def generate_mod_sheet():
+	"""save_pass("mod_-3_nostar.csv", {"type": 8, "star": 0, "diff": -3, "accountID": 71})
+	#save_pass("mod_-3_star.csv", {"type": 8, "star": 1, "diff": -3, "accountID": 71})
+	save_pass("mod_-2_nostar.csv", {"type": 8, "star": 0, "diff": -2, "accountID": 71})
+	#save_pass("mod_-2_star.csv", {"type": 8, "star": 1, "diff": -2, "accountID": 71})
+	save_pass("mod_-1_nostar.csv", {"type": 8, "star": 0, "diff": -1, "accountID": 71})
+	#save_pass("mod_-1_star.csv", {"type": 8, "star": 1, "diff": -1, "accountID": 71})
+	save_pass("mod_nostar.csv", {"type": 8, "star": 0, "accountID": 71})
+	save_pass("mod_star.csv", {"type": 8, "star": 1, "accountID": 71})"""
+	#save_pass("type24.csv", {"type": 24}, True)
+	save_pass("mod_epic.csv", {"type": 8, "epic": 1, "accountID": 71})

@@ -13,6 +13,9 @@ if "--special" in sys.argv:
 	if "rated_sheet" in sys.argv:
 		sys.argv.remove("rated_sheet")
 		special_tasks.generate_rated_sheet()
+	if "mod_sheet" in sys.argv:
+		sys.argv.remove("mod_sheet")
+		special_tasks.generate_mod_sheet()
 
 else:
 	for arg in sys.argv[1:]:
