@@ -76,6 +76,7 @@ def send_request(endpoint, data, *args, **kwargs):
 
 	if (response.text == '' or response.status_code != 200) and attempt < 4:
 		print(f"Being rate-limited, sleeping... {response.status_code}")
+		print(f"Response content: {response.text}")
 		time.sleep(60*attempt)
 		return send_request(endpoint, data, attempt=attempt+1)
 
