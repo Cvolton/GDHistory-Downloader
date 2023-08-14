@@ -74,10 +74,10 @@ def send_request(endpoint, data, *args, **kwargs):
 		print(f"Retrying - {response.text}")
 		return send_request(endpoint, data, attempt=attempt)
 
-	if (response.text == '' or response.status_code != 200) and attempt < 4:
+	if (response.text == '' or response.status_code != 200) and attempt < 20:
 		print(f"Being rate-limited, sleeping... {response.status_code}")
 		print(f"Response content: {response.text}")
-		time.sleep(60*attempt)
+		time.sleep(attempt)
 		return send_request(endpoint, data, attempt=attempt+1)
 
 	return RequestResult(data, response.text, endpoint)
