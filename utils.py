@@ -58,8 +58,8 @@ def send_request(endpoint, data, *args, **kwargs):
 	attempt = kwargs.get('attempt', 1)
 
 	mandatory_data = {
-		"gameVersion": "21",
-		"binaryVersion": "35",
+		"gameVersion": "22",
+		"binaryVersion": "38",
 		"gdw": "0",
 		"secret": "Wmfd2893gb7"
 	}
