@@ -145,6 +145,29 @@ def generate_rated_sheet():
 
 		page = page + 1
 
+def generate_leaderboard_sheet():
+	account_id = 4759274
+	#1:ViPriN:2:1078150:13:150:17:3556:6:1165:9:8:10:8:11:39:14:7:15:2:16:2795:3:33535:52:18:8:281:46:31198:4:1123:7:2795
+	print("username,userID,coins,userCoins,rank,icon,col1,col2,iconType,special,accountID,stars,moons,cp,diamonds,demons,udid")
+	while True:
+		response_text = utils.save_request('getGJScores20', {"type": "relative", "count": 100, "accountID": account_id, "udid": "amongus"} )
+		previous_account_id = account_id
+
+		if response_text is None:
+			break
+
+		if not response_text.startswith('1:'):
+			continue
+
+		users = response_text.split('#')[0].split('|')
+		for user in users:
+			data = server_parsers.response_to_dict(user, ":")
+			if data:
+				print(f"{data[1]},{data[2]},\"{data[13]}\",{data[17]},{data[6]},{data[9]},{data[10]},{data[11]},{data[14]},{data[15]},{data[16]},{data[3]},{data[52]},{data[8]},{data[46]},{data[4]},{data[7] if 7 in data else None}")
+				account_id = data[16]
+
+		if account_id == previous_account_id: break
+
 
 def do_mod_sheet_pass(params, dont_switch=False):
 	page = 0
@@ -193,4 +216,4 @@ def generate_mod_sheet():
 	save_pass("mod_nostar.csv", {"type": 8, "star": 0, "accountID": 71})
 	save_pass("mod_star.csv", {"type": 8, "star": 1, "accountID": 71})"""
 	#save_pass("type24.csv", {"type": 24}, True)
-	save_pass("mod_epic.csv", {"type": 8, "epic": 1, "accountID": 71})
+	save_pass("gdw_featured.csv", {"type": 17})

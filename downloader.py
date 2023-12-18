@@ -16,6 +16,9 @@ if "--special" in sys.argv:
 	if "mod_sheet" in sys.argv:
 		sys.argv.remove("mod_sheet")
 		special_tasks.generate_mod_sheet()
+	if "user_sheet" in sys.argv:
+		sys.argv.remove("user_sheet")
+		special_tasks.generate_leaderboard_sheet()
 
 else:
 	for arg in sys.argv[1:]:
