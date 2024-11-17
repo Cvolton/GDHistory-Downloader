@@ -192,7 +192,7 @@ def generate_lists_megaresponse():
 		page = page + 1
 
 	parts_json = {
-		"content": "|".join(all_parts[0]) + "#" + "|".join(all_parts[1]) + "9999:0:10#"
+		"content": "|".join(all_parts[0]) + "#" + "|".join(all_parts[1]) + "#9999:0:10#"
 	}
 
 	with open(utils.get_other_env_var("LISTS_MEGA_RESPONSE_FILE"), "w") as output_file:
