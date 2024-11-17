@@ -29,6 +29,11 @@ def get_source_interface():
 
 	return os.getenv('SOURCE_INTERFACE', False)
 
+def get_other_env_var(var):
+	load_dotenv()
+
+	return os.getenv(var, False)
+
 #adapted from https://stackoverflow.com/questions/48996494/send-http-request-through-specific-network-interface
 def session_for_src_addr(addr: str) -> requests.Session:
 	"""
@@ -116,7 +121,7 @@ def process_task_group(id):
 			else:
 				response = save_request(task['endpoint'], task['parameters'])
 
-def create_output_file(request_result):
+def create_output_file(request_result, output_folder="Output"):
 	data_path = get_data_path()
 
 	response_json = {
@@ -128,12 +133,12 @@ def create_output_file(request_result):
 
 	filename = f"{str(request_result.created)}.json".replace(":", "-")
 
-	with open(f"{data_path}/Output/{filename}", "w") as output_file:
+	with open(f"{data_path}/{output_folder}/{filename}", "w") as output_file:
 		json.dump(response_json, output_file)
 
 	#print(response_json)
 
-def save_request(endpoint, data):
+def save_request(endpoint, data, output_folder="Output"):
 	response = send_request(endpoint, data)
-	create_output_file(response)
+	create_output_file(response, output_folder)
 	return False if response.response_text[:2] == '-1' else response.response_text

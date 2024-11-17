@@ -168,6 +168,36 @@ def generate_leaderboard_sheet():
 
 		if account_id == previous_account_id: break
 
+def generate_lists_megaresponse():
+	page = 0
+
+	all_parts = {}
+
+	while True:
+		print(f"Page {page}")
+		response_text = utils.save_request('getGJLevelLists', {"type": 4, "star": 1, "page": page} )
+
+		if response_text is None or response_text == False:
+			break
+
+		if not response_text.startswith('1:'):
+			continue
+
+		parts = response_text.split('#')
+		for i, part in enumerate(parts):
+			if not i in all_parts:
+				all_parts[i] = []
+			all_parts[i].append(part)
+
+		page = page + 1
+
+	parts_json = {
+		"content": "|".join(all_parts[0]) + "#" + "|".join(all_parts[1]) + "9999:0:10#"
+	}
+
+	with open(utils.get_other_env_var("LISTS_MEGA_RESPONSE_FILE"), "w") as output_file:
+		json.dump(parts_json, output_file)
+
 
 def do_mod_sheet_pass(params, dont_switch=False):
 	page = 0

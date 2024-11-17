@@ -19,6 +19,9 @@ if "--special" in sys.argv:
 	if "user_sheet" in sys.argv:
 		sys.argv.remove("user_sheet")
 		special_tasks.generate_leaderboard_sheet()
+	if "lists_mega_response" in sys.argv:
+		sys.argv.remove("lists_mega_response")
+		special_tasks.generate_lists_megaresponse()
 
 else:
 	for arg in sys.argv[1:]:
