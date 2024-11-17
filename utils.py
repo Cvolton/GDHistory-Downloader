@@ -126,7 +126,7 @@ def create_output_file(request_result):
 		"raw_output": request_result.response_text
 	}
 
-	filename = f"{str(request_result.created)}.json"
+	filename = f"{str(request_result.created)}.json".replace(":", "-")
 
 	with open(f"{data_path}/Output/{filename}", "w") as output_file:
 		json.dump(response_json, output_file)
