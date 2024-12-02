@@ -184,6 +184,9 @@ def generate_lists_megaresponse():
 			continue
 
 		parts = response_text.split('#')
+		if len(parts) < 4:
+			continue
+			
 		for i, part in enumerate(parts):
 			if not i in all_parts:
 				all_parts[i] = []
