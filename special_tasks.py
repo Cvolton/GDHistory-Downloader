@@ -28,6 +28,56 @@ def get_id_range_task(start, finish):
 			start = end
 		time.sleep(request_delay)
 
+def find_recent_comments():
+	request_delay = utils.get_request_delay()
+	
+	#Step 0: define ID ranges
+	# range start : best level
+	ranges = {
+		0: 13519,
+		170001: 341613,
+		3200001: 10565740,
+		29550001: 34085027,
+		35000001: 43908596,
+		53000001: 57436521,
+		63214001: 72956745,
+		81395001: 89886591,
+		90000001: 90475473,
+		100000001: 104187415,
+		110000001: 118509879
+	}
+	
+	timestamps = []
+	
+	#Step 1: load comments for each best level
+	for start, best in ranges.items():
+		print(f"Loading comments for best level {best} in range {start}")
+		response_text = utils.save_request('getGJComments21', {"levelID": best, "count": 100, "mode": 0, "page": 0} )
+		estimation_created = str(datetime.now(pytz.utc))
+		all_comments = response_text.split('|')
+		for comment in all_comments:
+			comment_info = server_parsers.response_to_dict(comment.split(':')[0], '~')
+			timestamp = comment_info[9]
+			if not "seconds" in timestamp and not "minutes" in timestamp: continue
+			timestamps.append({
+				"level_id": best,
+				"comment_id": int(comment_info[6]),
+				"timestamp": timestamp,
+				"estimation_created": estimation_created
+			})
+		
+	json_set = {
+		'endpoint': "GDHistory-Special",
+		'task': "find_new_comments",
+		'dates': timestamps
+	}
+
+	data_path = utils.get_data_path()
+	filename = f"new_comments_{datetime.now()}.json"
+
+	with open(f"{data_path}/Output/{filename}", "w") as output_file:
+		json.dump(json_set, output_file)
+
 def find_cutoffs_for_today():
 	request_delay = utils.get_request_delay()
 

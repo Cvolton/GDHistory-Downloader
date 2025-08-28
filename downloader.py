@@ -25,6 +25,9 @@ if "--special" in sys.argv:
 	if "udid_scrape" in sys.argv:
 		sys.argv.remove("udid_scrape")
 		special_tasks.find_valid_udids()
+	if "new_comments" in sys.argv:
+		sys.argv.remove("new_comments")
+		special_tasks.find_recent_comments()
 
 else:
 	for arg in sys.argv[1:]:
