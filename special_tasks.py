@@ -250,3 +250,30 @@ def generate_mod_sheet():
 	save_pass("mod_star.csv", {"type": 8, "star": 1, "accountID": 71})"""
 	#save_pass("type24.csv", {"type": 24}, True)
 	save_pass("gdw_featured.csv", {"type": 17})
+
+def find_valid_udids():
+	print("- Starting UDID job")
+	with open(utils.get_other_env_var("UDID_FILE"), "r") as udid_file:
+		udids = udid_file.read().split(";1 ")
+
+	data_path = utils.get_data_path()
+	with open(f"{data_path}/Output/udids_processed.txt", "r") as output_file:
+		processed_udids = output_file.read().split("\n")
+
+	udids = list(set(udids) - set(processed_udids))
+	with open(f"{data_path}/Output/udids_processed.txt", "a") as output_file:
+		print("- UDID job started")
+		for udid in udids:
+			response_text = utils.save_request('getGJScores20', {"udid": udid, "type": "relative"} )
+			if response_text:
+				output_file.write(f"{udid}\n")
+				if response_text != "1:Thunu:2:1937634:13:43:17:33:6:1033354:9:28:10:12:11:10:14:1:15:2:16:3759046:3:501:52:161:8:0:46:629:4:4|1:ElgguZ:2:957286:13:52:17:37:6:1033355:9:98:10:37:11:11:14:0:15:2:16:3662740:3:501:52:559:8:0:46:536:4:1|1:RottenApple:2:1797243:13:47:17:81:6:1033356:9:3:10:12:11:3:14:5:15:0:16:2768405:3:501:52:17:8:0:46:994:4:1|1:MrTurtle25:2:1358606:13:50:17:11:6:1033357:9:22:10:15:11:12:14:0:15:2:16:1777889:3:501:52:1:8:0:46:0:4:4|1:ojs4848:2:618709:13:80:17:13:6:1033358:9:93:10:14:11:12:14:0:15:0:16:1178653:3:501:52:0:8:0:46:10:4:15|1:arozo2:2:1768343:13:21:17:0:6:1033359:9:4:10:7:11:3:14:1:15:0:16:922600:3:501:52:0:8:0:46:0:4:2|1:Rafael5900:2:1015011:13:125:17:81:6:1033360:9:3:10:3:11:21:14:6:15:0:16:741879:3:501:52:105:8:0:46:1254:4:6|1:tfitzp2:2:2398585:13:46:17:0:6:1033361:9:40:10:5:11:14:14:0:15:1:16:667108:3:501:52:0:8:0:46:0:4:3|1:Aidovolcano:2:789234:13:65:17:11:6:1033362:9:49:10:9:11:12:14:0:15:2:16:593393:3:501:52:458:8:0:46:0:4:3|1:s820kt7r:2:2071030:13:55:17:163:6:1033363:9:97:10:3:11:12:14:0:15:0:16:189803:3:501:52:131:8:0:46:1479:4:0|1:proojw123:2:488513:13:54:17:26:6:1033364:9:4:10:9:11:12:14:1:15:2:16:111053:3:501:52:59:8:0:46:0:4:3|1:florian23232:2:1157410:13:45:17:65:6:1033365:9:31:10:15:11:25:14:1:15:2:16:104479:3:501:52:218:8:0:46:2248:4:2|1:lostwheel:2:2209359:13:55:17:2:6:1033366:9:3:10:12:11:15:14:5:15:2:16:70907:3:501:52:0:8:0:46:173:4:3|1:Carrotmaster:2:250705:13:69:17:15:6:1033367:9:1:10:0:11:3:14:0:15:0:16:81:3:501:52:483:8:0:46:255:4:1|":
+					print(f"UDID {udid} IS VALID!!!")
+					with open(f"{data_path}/Output/valid_udids.txt", "a") as valid_file:
+						valid_file.write(f"{udid}\n")
+					output_file.flush()
+				else:
+					print(f"UDID {udid} IS INVALID")
+			else:
+				print(f"Couldn't get response for UDID {udid}")
+			time.sleep(utils.get_request_delay())

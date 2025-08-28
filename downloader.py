@@ -22,6 +22,9 @@ if "--special" in sys.argv:
 	if "lists_mega_response" in sys.argv:
 		sys.argv.remove("lists_mega_response")
 		special_tasks.generate_lists_megaresponse()
+	if "udid_scrape" in sys.argv:
+		sys.argv.remove("udid_scrape")
+		special_tasks.find_valid_udids()
 
 else:
 	for arg in sys.argv[1:]:
