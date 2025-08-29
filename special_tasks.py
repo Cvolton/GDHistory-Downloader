@@ -44,14 +44,18 @@ def find_recent_comments():
 		81395001: 89886591,
 		90000001: 90475473,
 		100000001: 104187415,
-		110000001: 118509879
+		110000001: 118509879,
+  		124421501: 124972680
 	}
 	
 	timestamps = []
-	
+ 
+	bests = list(ranges.values())
+	#TODO: check current daily
+
 	#Step 1: load comments for each best level
-	for start, best in ranges.items():
-		print(f"Loading comments for best level {best} in range {start}")
+	for best in bests:
+		print(f"Loading comments for level {best}")
 		response_text = utils.save_request('getGJComments21', {"levelID": best, "count": 100, "mode": 0, "page": 0} )
 		estimation_created = str(datetime.now(pytz.utc))
 		all_comments = response_text.split('|')
