@@ -141,4 +141,4 @@ def create_output_file(request_result, output_folder="Output"):
 def save_request(endpoint, data, output_folder="Output"):
 	response = send_request(endpoint, data)
 	create_output_file(response, output_folder)
-	return False if response.response_text[:2] == '-1' else response.response_text
+	return False if response.response_text.startswith('-1') or response.response_text.startswith("#") else response.response_text
