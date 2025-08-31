@@ -1,5 +1,5 @@
 import json
-
+import sys
 import pytz
 import utils
 import os
@@ -33,7 +33,7 @@ def save_comment_json():
     with open(f"{utils.get_data_path()}/all_comments.json", "w") as f:
         json.dump(comment_json[0], f)
 
-    with open(f"{utils.get_data_path()}/comments_by_date.json", "w") as f:
+    with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "w") as f:
         json.dump(comment_json[1], f)
 
     print_all_lengths_for_by_date(comment_json)
@@ -43,7 +43,7 @@ def print_all_lengths_for_by_date(comment_json):
         print(f"Date: {date}, Number of Comments: {len(comments)}")
 
 #save_comment_json()
-with open(f"{utils.get_data_path()}/comments_by_date.json", "r") as f:
+with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "r") as f:
     all_comments = json.loads(f.read())
 
 ## Triangulate year limit
@@ -74,6 +74,8 @@ def load_updated_comment(comment_data):
     # bisect page to find page with comment id we need
     requested_id = comment_data["6"]
     level_id = comment_data["1"]
+    print(f"- Loading comment {requested_id} on level {level_id}")
+    print("-- Loading page ...", end="")
 
     min_page = 0
     current_res = get_comments_for_level(level_id, 0)
@@ -85,17 +87,22 @@ def load_updated_comment(comment_data):
         max_comment_id = current_res[0][-1][6] if 6 in current_res[0][-1] else None
         if min_comment_id is None or max_comment_id is None:
             return None
+        
+        if not min_comment_id.isnumeric() or not max_comment_id.isnumeric():
+            return None
 
-        if min_comment_id <= requested_id <= max_comment_id:
+        if int(min_comment_id) <= int(requested_id) <= int(max_comment_id):
             for comment in current_res[0]:
-                if comment[6] == requested_id:
+                if int(comment[6]) == int(requested_id):
+                    print("")
                     return comment
             return None
-        elif min_comment_id > requested_id:
+        elif int(min_comment_id) > int(requested_id):
             min_page = mid_page + 1
         else:
             max_page = mid_page - 1
         mid_page = (min_page + max_page) // 2
+        print(f"\r-- Loading page {mid_page}... ({min_page}, {max_page})...", end="")
         current_res = get_comments_for_level(level_id, mid_page)
 
 def next_year_index(year):
@@ -103,7 +110,8 @@ def next_year_index(year):
     return f"{count} year{'s' if count != 1 else ''}"
 
 def load_oldest_for_year(year):
-    comments = sorted(all_comments[year].items())
+    print(f"\033[1mLoading oldests for year {year}\033[0m")
+    comments = sorted(all_comments[year].items(), key=lambda item: int(item[0]))
     comments_copy = comments[:]
     
     last_comment_current_year = None
@@ -111,50 +119,31 @@ def load_oldest_for_year(year):
     first_comment_next_year_time = None
     
     while len(comments_copy) > 0:
-        # load comment from middle of array
-        mid_index = len(comments_copy) // 2
-
-        # at the bottom we have oldest comments
-        # at the top we have newest comments
-        mid_comment = load_updated_comment(comments_copy[mid_index][1])
-        if not mid_comment:
-            comments_copy.pop(mid_index)
+        # load first comment in array
+        first_comment = load_updated_comment(comments_copy[0][1])
+        if not first_comment:
+            comments_copy.pop(0)
             continue
-        
-        if "year" not in mid_comment[9] or mid_comment[9] == year:
-            comments_copy = comments_copy[:mid_index]
-            last_comment_current_year = mid_comment
+
+        if "year" not in first_comment[9] or first_comment[9] == year:
+            return first_comment_next_year, first_comment_next_year_time
         else:
-            comments_copy = comments_copy[mid_index + 1:]
-            first_comment_next_year = mid_comment
+            comments_copy.pop(0)
+            first_comment_next_year = first_comment
             first_comment_next_year_time = datetime.now(pytz.utc)
 
-        print("Loading,", last_comment_current_year, first_comment_next_year, len(comments_copy))
+        print("- Finished,", last_comment_current_year, first_comment_next_year, len(comments_copy))
     return first_comment_next_year, first_comment_next_year_time
 
 oldests = {}
 
 def load_all_oldests():
     for key in all_comments.keys():
+        #if key != "10 years": continue
         first_comment, first_comment_time = load_oldest_for_year(key)
         oldests[key] = (first_comment, first_comment_time)
 
     print(oldests)
-    
-oldests = {'3 years': ({2: 'R0chIDop', 3: '145380463', 4: '0', 7: '0', 10: '100', 9: '4 years', 6: '6654481'}, datetime(2025, 8, 31, 18, 42, 8, 43156, tzinfo=pytz.UTC)), 
-           '2 years': ({2: 'bWl0aWNv', 3: '128978495', 4: '0', 7: '0', 10: '100', 9: '3 years', 6: '7361281'}, datetime(2025, 8, 31, 18, 46, 54, 548574, tzinfo=pytz.UTC)), 
-           '4 years': ({2: 'SSBhYnNvbHV0ZWx5IGxvdmUgdGhlc2Ugb2xkICdnb29kJyBsZXZlbHMuIFRoZXNlIGNoYWxsZW5nZSB5b3VyIGJyYWluIGFuZCBhcmUgYWJzb2x1dGVseSBmdW4u', 3: '61751004', 4: '3', 7: '0', 10: '100', 9: '5 years', 6: '5849308'}, datetime(2025, 8, 31, 18, 49, 43, 345631, tzinfo=pytz.UTC)), 
-           '7 years': ({2: 'RXo=', 3: '16267539', 4: '2', 7: '0', 10: '100', 9: '8 years', 6: '3734008'}, datetime(2025, 8, 31, 18, 50, 58, 383428, tzinfo=pytz.UTC)), 
-           '8 years': ({2: 'aSBhZ3JlZQ==', 3: '19395079', 4: '0', 7: '0', 10: '0', 9: '9 years', 6: '2715694'}, datetime(2025, 8, 31, 18, 51, 51, 969094, tzinfo=pytz.UTC)), 
-           '1 year': ({2: 'Y2FuIHdlIGtlZXAgdGhpcyBoYXJkIGRlbW9uPyBJIHdhbnQgdGhpcyB0byBiZSBteSBmaXJzdCA8Mw==', 3: '189664795', 4: '2', 7: '0', 10: '32', 9: '2 years', 6: '8067748'}, datetime(2025, 8, 31, 18, 57, 23, 855649, tzinfo=pytz.UTC)), 
-           '11 years': (None, None), 
-           '0 years ago': ({2: 'V0hZIFRFQU0gSEFYPjpbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbWyEhIQ==', 3: '253719506', 4: '0', 7: '0', 10: '64', 9: '1 year', 6: '9122342'}, datetime(2025, 8, 31, 19, 8, 29, 442247, tzinfo=pytz.UTC)), 
-           '5 years': ({2: 'dGhlIG5hbWUgb2YgdGhpcyBsZXZlbCBpcyBob3cgbWFueSBhdHRlbXB0cyBJIHRvb2sgdG8gYmVhdCBpdA==', 3: '4986346', 4: '1', 7: '0', 10: '100', 9: '6 years', 6: '5138924'}, datetime(2025, 8, 31, 19, 15, 46, 38615, tzinfo=pytz.UTC)), 
-           '9 years': ({2: 'dGhlIG9ubHkgc2ltaWxhcml0eSBvbiBkaXMgbGV2ZWwgdG8gYmFjayBpbiB0cmFjayBpcyB0aGUgbXVzaWMg', 3: '7280327', 4: '0', 7: '0', 10: '0', 9: '10 years', 6: '1480143'}, datetime(2025, 8, 31, 19, 17, 36, 771404, tzinfo=pytz.UTC)), 
-           '6 years': ({2: 'dGltZSBhIHQgdCBhIGMgYw==', 3: '41487068', 4: '2', 7: '0', 10: '100', 9: '7 years', 6: '4502984'}, datetime(2025, 8, 31, 19, 21, 13, 158930, tzinfo=pytz.UTC)), 
-           '10 years': (None, None)}
-
-print(oldests)
 
 def convert_oldests_to_record():
     timestamps = []
@@ -196,7 +185,36 @@ def move_oldests():
 def save_all_comments():
     with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "w") as f:
         json.dump(all_comments, f)
+        
+def remove_comments_from_levels_with_most_comments():
+    level_ids = {}
+    for year in all_comments.keys():
+        comments = all_comments[year]
+        for comment in comments:
+            level_id = comments[comment]["1"]
+            if level_id not in level_ids:
+                level_ids[level_id] = 0
+            level_ids[level_id] += 1
+    #sort level_ids
+    level_ids = dict(sorted(level_ids.items(), key=lambda item: item[1], reverse=True))
+    
+    for year in all_comments.keys():
+        comments = all_comments[year]
+        for comment in list(comments):
+            level_id = comments[comment]["1"]
+            if level_ids[level_id] > 20000:
+                del comments[comment]
 
+def limit_all_comments():
+    for year in all_comments.keys():
+        comments = all_comments[year]
+        if len(comments) > 12000:
+            step = len(comments) // 10000
+            all_comments[year] = {k: comments[k] for i, k in enumerate(comments) if i % step == 0}
+
+remove_comments_from_levels_with_most_comments()
+limit_all_comments()
+load_all_oldests()
 convert_oldests_to_record()
 move_oldests()
 save_all_comments()
