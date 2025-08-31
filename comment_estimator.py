@@ -133,8 +133,52 @@ def load_oldest_for_year(year):
     return first_comment_next_year, first_comment_next_year_time
 
 oldests = {}
-for key in all_comments.keys():
-    first_comment, first_comment_time = load_oldest_for_year(key)
-    oldests[key] = (first_comment, first_comment_time)
+
+def load_all_oldests():
+    for key in all_comments.keys():
+        first_comment, first_comment_time = load_oldest_for_year(key)
+        oldests[key] = (first_comment, first_comment_time)
+
+    print(oldests)
     
+oldests = {'3 years': ({2: 'R0chIDop', 3: '145380463', 4: '0', 7: '0', 10: '100', 9: '4 years', 6: '6654481'}, datetime(2025, 8, 31, 18, 42, 8, 43156, tzinfo=pytz.UTC)), 
+           '2 years': ({2: 'bWl0aWNv', 3: '128978495', 4: '0', 7: '0', 10: '100', 9: '3 years', 6: '7361281'}, datetime(2025, 8, 31, 18, 46, 54, 548574, tzinfo=pytz.UTC)), 
+           '4 years': ({2: 'SSBhYnNvbHV0ZWx5IGxvdmUgdGhlc2Ugb2xkICdnb29kJyBsZXZlbHMuIFRoZXNlIGNoYWxsZW5nZSB5b3VyIGJyYWluIGFuZCBhcmUgYWJzb2x1dGVseSBmdW4u', 3: '61751004', 4: '3', 7: '0', 10: '100', 9: '5 years', 6: '5849308'}, datetime(2025, 8, 31, 18, 49, 43, 345631, tzinfo=pytz.UTC)), 
+           '7 years': ({2: 'RXo=', 3: '16267539', 4: '2', 7: '0', 10: '100', 9: '8 years', 6: '3734008'}, datetime(2025, 8, 31, 18, 50, 58, 383428, tzinfo=pytz.UTC)), 
+           '8 years': ({2: 'aSBhZ3JlZQ==', 3: '19395079', 4: '0', 7: '0', 10: '0', 9: '9 years', 6: '2715694'}, datetime(2025, 8, 31, 18, 51, 51, 969094, tzinfo=pytz.UTC)), 
+           '1 year': ({2: 'Y2FuIHdlIGtlZXAgdGhpcyBoYXJkIGRlbW9uPyBJIHdhbnQgdGhpcyB0byBiZSBteSBmaXJzdCA8Mw==', 3: '189664795', 4: '2', 7: '0', 10: '32', 9: '2 years', 6: '8067748'}, datetime(2025, 8, 31, 18, 57, 23, 855649, tzinfo=pytz.UTC)), 
+           '11 years': (None, None), 
+           '0 years ago': ({2: 'V0hZIFRFQU0gSEFYPjpbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbWyEhIQ==', 3: '253719506', 4: '0', 7: '0', 10: '64', 9: '1 year', 6: '9122342'}, datetime(2025, 8, 31, 19, 8, 29, 442247, tzinfo=pytz.UTC)), 
+           '5 years': ({2: 'dGhlIG5hbWUgb2YgdGhpcyBsZXZlbCBpcyBob3cgbWFueSBhdHRlbXB0cyBJIHRvb2sgdG8gYmVhdCBpdA==', 3: '4986346', 4: '1', 7: '0', 10: '100', 9: '6 years', 6: '5138924'}, datetime(2025, 8, 31, 19, 15, 46, 38615, tzinfo=pytz.UTC)), 
+           '9 years': ({2: 'dGhlIG9ubHkgc2ltaWxhcml0eSBvbiBkaXMgbGV2ZWwgdG8gYmFjayBpbiB0cmFjayBpcyB0aGUgbXVzaWMg', 3: '7280327', 4: '0', 7: '0', 10: '0', 9: '10 years', 6: '1480143'}, datetime(2025, 8, 31, 19, 17, 36, 771404, tzinfo=pytz.UTC)), 
+           '6 years': ({2: 'dGltZSBhIHQgdCBhIGMgYw==', 3: '41487068', 4: '2', 7: '0', 10: '100', 9: '7 years', 6: '4502984'}, datetime(2025, 8, 31, 19, 21, 13, 158930, tzinfo=pytz.UTC)), 
+           '10 years': (None, None)}
+
 print(oldests)
+
+def convert_oldests_to_record():
+    timestamps = []
+    for oldest in oldests:
+        new_comment = oldests[oldest][0]
+        if not new_comment: continue
+        original_comment = all_comments[oldest][new_comment[6]]
+        timestamps.append({
+            "level_id": original_comment["1"],
+            "comment_id": int(new_comment[6]),
+            "timestamp": new_comment[9],
+            "estimation_created": str(oldests[oldest][1])
+        })
+        
+    json_set = {
+        'endpoint': "GDHistory-Special",
+        'task': "find_new_comments",
+        'dates': timestamps
+    }
+    
+    data_path = utils.get_data_path()
+    filename = f"old_comments_{datetime.now()}.json"
+
+    with open(f"{data_path}/Output/{filename}", "w") as output_file:
+        json.dump(json_set, output_file)
+        
+convert_oldests_to_record()
