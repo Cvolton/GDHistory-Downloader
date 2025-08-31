@@ -181,4 +181,22 @@ def convert_oldests_to_record():
     with open(f"{data_path}/Output/{filename}", "w") as output_file:
         json.dump(json_set, output_file)
         
+def move_oldests():
+    for oldest in oldests:
+        new_comment = oldests[oldest][0]
+        if not new_comment: continue
+        
+        target_bracket = new_comment[9]
+        copy = [*all_comments[oldest].items()]
+        for comment_id, comment in copy:
+            if comment["6"] < new_comment[6]:
+                all_comments[target_bracket][comment["6"]] = comment
+                del all_comments[oldest][comment["6"]]
+                
+def save_all_comments():
+    with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "w") as f:
+        json.dump(all_comments, f)
+
 convert_oldests_to_record()
+move_oldests()
+save_all_comments()
