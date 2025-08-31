@@ -81,8 +81,11 @@ def load_updated_comment(comment_data):
     mid_page = 0
 
     while min_page <= max_page:
-        min_comment_id = current_res[0][0][6]
-        max_comment_id = current_res[0][-1][6]
+        min_comment_id = current_res[0][0][6] if 6 in current_res[0][0] else None
+        max_comment_id = current_res[0][-1][6] if 6 in current_res[0][-1] else None
+        if min_comment_id is None or max_comment_id is None:
+            return None
+
         if min_comment_id <= requested_id <= max_comment_id:
             for comment in current_res[0]:
                 if comment[6] == requested_id:
