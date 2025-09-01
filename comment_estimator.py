@@ -6,6 +6,9 @@ import os
 from server_parsers import response_to_dict
 from datetime import datetime
 
+#read comment_json_filename from 1st cli arg
+comment_json_filename = sys.argv[1] if len(sys.argv) > 1 else f"comments_by_date_updated.json"
+
 def generate_comment_json():
     all_comments = {}
     comments_by_date = {}
@@ -30,10 +33,10 @@ def generate_comment_json():
 
 def save_comment_json():
     comment_json = generate_comment_json()
-    with open(f"{utils.get_data_path()}/all_comments.json", "w") as f:
+    with open(f"{utils.get_data_path()}/all_comments_range2.json", "w") as f:
         json.dump(comment_json[0], f)
 
-    with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "w") as f:
+    with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "w") as f:
         json.dump(comment_json[1], f)
 
     print_all_lengths_for_by_date(comment_json)
@@ -43,7 +46,9 @@ def print_all_lengths_for_by_date(comment_json):
         print(f"Date: {date}, Number of Comments: {len(comments)}")
 
 #save_comment_json()
-with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "r") as f:
+#sys.exit(0)
+
+with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "r") as f:
     all_comments = json.loads(f.read())
 
 ## Triangulate year limit
@@ -139,7 +144,7 @@ oldests = {}
 
 def load_all_oldests():
     for key in all_comments.keys():
-        #if key != "10 years": continue
+        if key.startswith("202"): continue
         first_comment, first_comment_time = load_oldest_for_year(key)
         oldests[key] = (first_comment, first_comment_time)
 
@@ -183,7 +188,7 @@ def move_oldests():
                 del all_comments[oldest][comment["6"]]
                 
 def save_all_comments():
-    with open(f"{utils.get_data_path()}/comments_by_date_updated.json", "w") as f:
+    with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "w") as f:
         json.dump(all_comments, f)
         
 def remove_comments_from_levels_with_most_comments():
