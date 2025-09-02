@@ -28,6 +28,9 @@ if "--special" in sys.argv:
 	if "new_comments" in sys.argv:
 		sys.argv.remove("new_comments")
 		special_tasks.find_recent_comments()
+	if "new_account_comments" in sys.argv:
+		sys.argv.remove("new_account_comments")
+		special_tasks.find_recent_account_comments()
 
 else:
 	for arg in sys.argv[1:]:

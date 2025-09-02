@@ -1,3 +1,4 @@
+import hashlib
 import utils
 import server_parsers
 
@@ -27,6 +28,60 @@ def get_id_range_task(start, finish):
 		else:
 			start = end
 		time.sleep(request_delay)
+
+def find_recent_account_comments():
+	timestamps = []
+    
+	upload_params = {
+		"cType": 1,
+		"comment": "Q3ZvbHRvbiBHTUQgdGVzdA=="
+	}
+ 
+	data_path = utils.get_data_path()
+	filename = f"{data_path}/account_comment_estimator_accounts.json"
+	with open(filename, "r") as input_file:
+		account_ids = json.load(input_file)
+		for account_id, values in account_ids.items():
+			upload_params["accountID"] = account_id
+			upload_params["gjp2"] = values["gjp2"]
+			upload_params["userName"] = values["userName"]
+			chk = f"{upload_params['userName']}{upload_params['comment']}001"
+			chk_salt = "xPT6iUrtws0J"
+			hl = hashlib.sha1()
+			hl.update(f"{chk}{chk_salt}".encode('utf-8'))
+			chk_sha1 = hl.hexdigest()
+			upload_params["chk"] = server_parsers.robtop_xor(chk_sha1, "29481")
+			response = utils.save_request('uploadGJAccComment20', upload_params)
+			estimation_created = str(datetime.now(pytz.utc))
+			if response: 
+				timestamps.append({
+					"level_id": account_id,
+					"comment_id": response,
+					"timestamp": "0 years ago",
+					"estimation_created": estimation_created,
+					"type": "account"
+				})
+    
+				delete_params = {
+					**values,
+					"accountID": account_id,
+					"commentID": response,
+					"targetAccountID": account_id
+				}
+				delete_res = utils.save_request('deleteGJAccComment20', delete_params)
+
+	print(timestamps)
+	json_set = {
+		'endpoint': "GDHistory-Special",
+		'task': "find_new_comments",
+		'dates': timestamps
+	}
+
+	data_path = utils.get_data_path()
+	filename = f"new_acc_comments_{datetime.now()}.json"
+
+	with open(f"{data_path}/Output/{filename}", "w") as output_file:
+		json.dump(json_set, output_file)
 
 def find_recent_comments():
 	request_delay = utils.get_request_delay()
