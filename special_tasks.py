@@ -62,13 +62,17 @@ def find_recent_account_comments():
 					"type": "account"
 				})
     
-				delete_params = {
-					**values,
-					"accountID": account_id,
-					"commentID": response,
-					"targetAccountID": account_id
-				}
-				delete_res = utils.save_request('deleteGJAccComment20', delete_params)
+				delete_res = None
+				i = 0
+				while not delete_res and i < 20:
+					delete_params = {
+						**values,
+						"accountID": account_id,
+						"commentID": response,
+						"targetAccountID": account_id
+					}
+					delete_res = utils.save_request('deleteGJAccComment20', delete_params)
+					i += 1
 
 	print(timestamps)
 	json_set = {
