@@ -173,6 +173,7 @@ def remove_comments_from_levels_with_most_comments():
 def limit_all_comments():
     for year in all_comments.keys():
         comments = all_comments[year]
+        comments = dict(sorted(comments.items(), key=lambda x: int(x[0])))
         if len(comments) > 12000:
             step = len(comments) // 10000
             all_comments[year] = {k: comments[k] for i, k in enumerate(comments) if i % step == 0}
