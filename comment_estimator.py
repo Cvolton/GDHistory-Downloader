@@ -6,6 +6,14 @@ import os
 from server_parsers import response_to_dict
 from datetime import datetime
 
+weeks_enabled = "--weeks" in sys.argv
+months_enabled = "--months" in sys.argv or weeks_enabled
+
+print(f"Weeks enabled: {weeks_enabled}, Months enabled: {months_enabled}")
+
+sys.argv.remove("--weeks") if "--weeks" in sys.argv else None
+sys.argv.remove("--months") if "--months" in sys.argv else None
+
 comment_json_filename = sys.argv[1] if len(sys.argv) > 1 else f"comments_by_date_updated.json"
 
 with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "r") as f:
@@ -90,7 +98,7 @@ def load_oldest_for_year(year):
             comments_copy.pop(0)
             continue
 
-        if "year" not in first_comment[9] or first_comment[9] == year:
+        if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])):
             return first_comment_next_year, first_comment_next_year_time
         else:
             comments_copy.pop(0)
@@ -174,9 +182,20 @@ def limit_all_comments():
     for year in all_comments.keys():
         comments = all_comments[year]
         comments = dict(sorted(comments.items(), key=lambda x: int(x[0])))
-        if len(comments) > 12000:
-            step = len(comments) // 10000
+        comment_limit = 12000
+        comment_step = 10000
+        
+        if "month" in year:
+            comment_limit = comment_limit // 12
+            comment_step = comment_step // 12
+        elif "week" in year:
+            comment_limit = comment_limit // 52
+            comment_step = comment_step // 52
+        
+        if len(comments) > comment_limit:
+            step = len(comments) // comment_step
             all_comments[year] = {k: comments[k] for i, k in enumerate(comments) if i % step == 0}
+            print(f"- Limited {year} to {len(all_comments[year])} comments")
 
 remove_comments_from_levels_with_most_comments()
 limit_all_comments()

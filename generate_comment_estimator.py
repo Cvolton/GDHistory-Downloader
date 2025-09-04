@@ -4,6 +4,12 @@ import sys
 from server_parsers import response_to_dict
 import utils
 
+weeks_enabled = "--weeks" in sys.argv
+months_enabled = "--months" in sys.argv or weeks_enabled
+
+sys.argv.remove("--weeks") if "--weeks" in sys.argv else None
+sys.argv.remove("--months") if "--months" in sys.argv else None
+
 comment_json_filename = sys.argv[1] if len(sys.argv) > 1 else f"comments_by_date_updated.json"
 
 def generate_comment_json():
@@ -24,7 +30,7 @@ def generate_comment_json():
                     if comment_data[6] in (13519,55520,61757): continue
                     comment_data[1] = data["unprocessed_post_parameters"]["levelID"]
                     all_comments[int(comment_data[6])] = comment_data
-                    parsed_date = comment_data[9] if "year" in comment_data[9] else "0 years ago"
+                    parsed_date = comment_data[9] if "year" in comment_data[9] or ("month" in comment_data[9] and months_enabled) or ("week" in comment_data[9] and weeks_enabled) else "0 years ago"
                     comments_by_date.setdefault(parsed_date, {})[int(comment_data[6])] = comment_data
     return all_comments, comments_by_date
 
