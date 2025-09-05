@@ -288,7 +288,7 @@ def generate_lists_megaresponse():
 
 	while True:
 		print(f"Page {page}")
-		response_text = utils.save_request('getGJLevelLists', {"type": 4, "star": 1, "page": page} )
+		response_text = utils.save_request('getGJLevelLists', {"type": 4, "star": 1, "page": page, "count": 2000} )
 
 		if response_text is None or response_text == False:
 			break
