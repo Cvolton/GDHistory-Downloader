@@ -30,7 +30,10 @@ def generate_comment_json():
                     if comment_data[6] in (13519,55520,61757): continue
                     comment_data[1] = data["unprocessed_post_parameters"]["levelID"]
                     all_comments[int(comment_data[6])] = comment_data
-                    parsed_date = comment_data[9] if "year" in comment_data[9] or ("month" in comment_data[9] and months_enabled) or ("week" in comment_data[9] and weeks_enabled) else "0 years ago"
+                    zero_years_ago = "0 years ago"
+                    if months_enabled: zero_years_ago = "0 months ago"
+                    if weeks_enabled: zero_years_ago = "0 weeks ago"
+                    parsed_date = comment_data[9] if "year" in comment_data[9] or ("month" in comment_data[9] and months_enabled) or ("week" in comment_data[9] and weeks_enabled) else zero_years_ago
                     comments_by_date.setdefault(parsed_date, {})[int(comment_data[6])] = comment_data
     return all_comments, comments_by_date
 
