@@ -152,6 +152,9 @@ def move_oldests():
         if not new_comment_id: continue
         
         target_bracket = new_comment[9]
+        if not target_bracket in all_comments:
+            print(f"- Creating new bracket {target_bracket}")
+            all_comments[target_bracket] = {}
         copy = [*all_comments[oldest].items()]
         for comment_id, comment in copy:
             if comment["6"] <= new_comment_id:
