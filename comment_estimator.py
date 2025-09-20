@@ -120,7 +120,7 @@ def load_oldest_for_year(year):
                 comments_copy.pop(0)
                 continue
 
-            if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])):
+            if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])) or (months_enabled and "month" in year and "year" in first_comment[9]) or (weeks_enabled and "week" in year and ("month" in first_comment[9] or "year" in first_comment[9])):
                 return first_comment_next_year, first_comment_next_year_time
             else:
                 comments_copy.pop(0)
