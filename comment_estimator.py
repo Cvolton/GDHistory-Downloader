@@ -103,8 +103,8 @@ def load_oldest_for_year(year):
             if not mid_comment:
                 comments_copy.pop(mid_index)
                 continue
-            
-            if "year" not in mid_comment[9] or mid_comment[9] == year:
+
+            if (mid_comment[9] == year) or ("year" not in mid_comment[9] and not (months_enabled and "month" in mid_comment[9]) and not (weeks_enabled and "week" in mid_comment[9])):
                 comments_copy = comments_copy[:mid_index]
                 last_comment_current_year = mid_comment
             else:
