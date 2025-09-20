@@ -15,6 +15,8 @@ for date_bracket, comments in all_comments.items():
         
 for comment_id, comment in all_comments_flattened.items():
     date = comment["9"]
+    if int(date.split(' ')[0]) > 2000:
+        continue
     if "year" not in date:
         date = "0 years ago"
     if not all_comments_remaster.get(date):
