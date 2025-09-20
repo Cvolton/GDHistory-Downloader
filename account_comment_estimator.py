@@ -8,8 +8,9 @@ from datetime import datetime
 
 weeks_enabled = "--weeks" in sys.argv
 months_enabled = "--months" in sys.argv or weeks_enabled
+catchup_mode = "--catchup" in sys.argv
 
-print(f"Weeks enabled: {weeks_enabled}, Months enabled: {months_enabled}")
+print(f"Weeks enabled: {weeks_enabled}, Months enabled: {months_enabled}, Catchup mode: {catchup_mode}")
 
 sys.argv.remove("--weeks") if "--weeks" in sys.argv else None
 sys.argv.remove("--months") if "--months" in sys.argv else None
@@ -92,18 +93,39 @@ def load_oldest_for_year(year):
     first_comment_next_year_time = None
     
     while len(comments_copy) > 0:
-        # load first comment in array
-        first_comment = load_updated_comment(comments_copy[0][1])
-        if not first_comment:
-            comments_copy.pop(0)
-            continue
+        if catchup_mode:
+            # load comment from middle of array
+            mid_index = len(comments_copy) // 2
 
-        if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])):
-            return first_comment_next_year, first_comment_next_year_time
+            # at the bottom we have oldest comments
+            # at the top we have newest comments
+            mid_comment = load_updated_comment(comments_copy[mid_index][1])
+            if not mid_comment:
+                comments_copy.pop(mid_index)
+                continue
+            
+            if "year" not in mid_comment[9] or mid_comment[9] == year:
+                comments_copy = comments_copy[:mid_index]
+                last_comment_current_year = mid_comment
+            else:
+                comments_copy = comments_copy[mid_index + 1:]
+                first_comment_next_year = mid_comment
+                first_comment_next_year_time = datetime.now(pytz.utc)
+
+            print("Loading,", last_comment_current_year, first_comment_next_year, len(comments_copy))
         else:
-            comments_copy.pop(0)
-            first_comment_next_year = first_comment
-            first_comment_next_year_time = datetime.now(pytz.utc)
+            # load first comment in array
+            first_comment = load_updated_comment(comments_copy[0][1])
+            if not first_comment:
+                comments_copy.pop(0)
+                continue
+
+            if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])):
+                return first_comment_next_year, first_comment_next_year_time
+            else:
+                comments_copy.pop(0)
+                first_comment_next_year = first_comment
+                first_comment_next_year_time = datetime.now(pytz.utc)
 
         print("- Finished,", last_comment_current_year, first_comment_next_year, len(comments_copy))
     return first_comment_next_year, first_comment_next_year_time
