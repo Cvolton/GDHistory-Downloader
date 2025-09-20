@@ -6,10 +6,21 @@ comment_json_filename = sys.argv[1] if len(sys.argv) > 1 else f"comments_by_date
 
 with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "r") as f:
     all_comments = json.loads(f.read())
-    
+
+def bracket_to_number(bracket):
+    parts = bracket.split(' ')
+    number = int(parts[0])
+    if len(parts) > 1:
+        if parts[1].startswith('week'):
+            number *= 7
+        elif parts[1].startswith('month'):
+            number *= 30
+        elif parts[1].startswith('year'):
+            number *= 365
+    return number
 
 def verify_brackets():
-    sorted_all_comments = reversed(sorted(all_comments.items(), key=lambda item: int(item[0].split(' ')[0])))
+    sorted_all_comments = reversed(sorted(all_comments.items(), key=lambda item: bracket_to_number(item[0])))
     last_bracket_min = 0
     last_bracket_max = 0
     last_bracket = None
