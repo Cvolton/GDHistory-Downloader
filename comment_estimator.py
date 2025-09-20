@@ -119,8 +119,11 @@ def load_oldest_for_year(year):
             if not first_comment:
                 comments_copy.pop(0)
                 continue
+            
+            if months_enabled and "month" in year and "year" in first_comment[9]:
+                return None, None
 
-            if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])) or (months_enabled and "month" in year and "year" in first_comment[9]) or (weeks_enabled and "week" in year and ("month" in first_comment[9] or "year" in first_comment[9])):
+            if (first_comment[9] == year) or ("year" not in first_comment[9] and not (months_enabled and "month" in first_comment[9]) and not (weeks_enabled and "week" in first_comment[9])):
                 return first_comment_next_year, first_comment_next_year_time
             else:
                 comments_copy.pop(0)
@@ -166,6 +169,7 @@ def convert_oldests_to_record():
         json.dump(json_set, output_file)
         
 def move_oldests():
+    move_twelve_months_to_years()
     for oldest in oldests:
         new_comment = oldests[oldest][0]
         if not new_comment: continue
@@ -181,6 +185,18 @@ def move_oldests():
             if int(comment["6"]) <= int(new_comment_id):
                 all_comments[target_bracket][comment["6"]] = comment
                 del all_comments[oldest][comment["6"]]
+                
+def move_twelve_months_to_years():
+    if "12 months" in oldests and oldests["12 months"][0] is None:
+        if "12 months" in all_comments and "1 year" in all_comments:
+            print("- Moving 12 months to 1 year")
+            for comment_id, comment in all_comments["12 months"].items():
+                all_comments["1 year"][comment_id] = comment
+            del all_comments["12 months"]
+        elif "12 months" in all_comments:
+            print("- Renaming 12 months to 1 year")
+            all_comments["1 year"] = all_comments["12 months"]
+            del all_comments["12 months"]
                 
 def save_all_comments():
     with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "w") as f:
