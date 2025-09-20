@@ -157,7 +157,7 @@ def move_oldests():
             all_comments[target_bracket] = {}
         copy = [*all_comments[oldest].items()]
         for comment_id, comment in copy:
-            if comment["6"] <= new_comment_id:
+            if int(comment["6"]) <= int(new_comment_id):
                 all_comments[target_bracket][comment["6"]] = comment
                 del all_comments[oldest][comment["6"]]
                 
