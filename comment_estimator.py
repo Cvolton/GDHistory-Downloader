@@ -9,8 +9,9 @@ from datetime import datetime
 weeks_enabled = "--weeks" in sys.argv
 months_enabled = "--months" in sys.argv or weeks_enabled
 catchup_mode = "--catchup" in sys.argv
+all_levels = "--all-levels" in sys.argv
 
-print(f"Weeks enabled: {weeks_enabled}, Months enabled: {months_enabled}, Catchup mode: {catchup_mode}")
+print(f"Weeks enabled: {weeks_enabled}, Months enabled: {months_enabled}, Catchup mode: {catchup_mode}, All levels: {all_levels}")
 
 sys.argv.remove("--weeks") if "--weeks" in sys.argv else None
 sys.argv.remove("--months") if "--months" in sys.argv else None
@@ -20,8 +21,13 @@ comment_json_filename = sys.argv[1] if len(sys.argv) > 1 else f"comments_by_date
 with open(f"{utils.get_data_path()}/{comment_json_filename}.json", "r") as f:
     all_comments = json.loads(f.read())
 
+comments_cache = {}
+
 ## Triangulate year limit
 def get_comments_for_level(level_id, page):
+    if (level_id, page) in comments_cache:
+        return comments_cache[(level_id, page)]
+
     count = 100
     response_text = utils.save_request('getGJComments21', {"count": count, "type": 0, "page": page, "levelID": level_id} )
     if not response_text: return response_text
@@ -40,7 +46,8 @@ def get_comments_for_level(level_id, page):
     page_count = (comments_total + count - 1) // count
     
     if len(comments) < 1: return None
-    
+
+    comments_cache[(level_id, page)] = (comments, page_count)
     return comments, page_count
 
 def load_updated_comment(comment_data):
@@ -241,7 +248,7 @@ def limit_all_comments():
             all_comments[year] = {k: comments[k] for i, k in enumerate(comments) if i % step == 0}
             print(f"- Limited {year} to {len(all_comments[year])} comments")
 
-remove_comments_from_levels_with_most_comments()
+if not all_levels: remove_comments_from_levels_with_most_comments()
 limit_all_comments()
 load_all_oldests()
 convert_oldests_to_record()
