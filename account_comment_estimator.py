@@ -53,6 +53,9 @@ def load_updated_comment(comment_data):
 
     min_page = 0
     current_res = get_comments_for_level(level_id, 0)
+    if not current_res:
+        return None
+
     max_page = current_res[1] - 1
     mid_page = 0
 
