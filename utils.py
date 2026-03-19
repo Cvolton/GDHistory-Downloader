@@ -73,7 +73,11 @@ def send_request(endpoint, data, *args, **kwargs):
 
 	headers = {'User-Agent': ''}
 
-	response = session.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers)
+	try:
+		response = session.post(f"http://www.boomlings.com/database/{endpoint}.php", data=data, headers=headers, timeout=10)
+	except:
+		print(f"Retrying - probably timeout")
+		return send_request(endpoint, data, attempt=attempt)
 
 	if response.text.startswith('error code'):
 		print(f"Retrying - {response.text}")
