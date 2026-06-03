@@ -137,6 +137,8 @@ def create_output_file(request_result, output_folder="Output"):
 
 	filename = f"{str(request_result.created)}.json".replace(":", "-")
 
+	os.makedirs(f"{data_path}/{output_folder}", exist_ok=True)
+
 	with open(f"{data_path}/{output_folder}/{filename}", "w") as output_file:
 		json.dump(response_json, output_file)
 
